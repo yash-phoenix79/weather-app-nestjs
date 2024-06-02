@@ -8,7 +8,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Weather API')
     .setDescription('API documentation for the weather app')
-    .setVersion('1.0')
+    .setVersion('0.0.2')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
