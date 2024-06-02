@@ -6,6 +6,7 @@ import { RedisModule } from '@nestjs-modules/ioredis';
 import { WeatherModule } from './weather/weather.module';
 import { HttpModule } from '@nestjs/axios';
 import { CacheModule } from '@nestjs/cache-manager';
+import * as redisStore from 'cache-manager-redis-store';
 
 @Module({
   imports: [
@@ -16,6 +17,9 @@ import { CacheModule } from '@nestjs/cache-manager';
     HttpModule,
     CacheModule.register({
       isGlobal: true,
+      store: redisStore,
+      host: 'localhost',
+      port: 6379,
       ttl: 360000, // default cache ttl
       max: 100,
     })
