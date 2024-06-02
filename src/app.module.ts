@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RedisModule } from '@nestjs-modules/ioredis';
 import { WeatherModule } from './weather/weather.module';
 import { HttpModule } from '@nestjs/axios';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -13,6 +14,11 @@ import { HttpModule } from '@nestjs/axios';
     }),
     WeatherModule,
     HttpModule,
+    CacheModule.register({
+      isGlobal: true,
+      ttl: 360000, // default cache ttl
+      max: 100,
+    })
     // RedisModule.forRootAsync({
     //   useFactory: (configService) => ({
     //     config: {

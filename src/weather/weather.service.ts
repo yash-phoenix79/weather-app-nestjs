@@ -1,14 +1,17 @@
 import { HttpService } from "@nestjs/axios";
-import { Injectable, Logger } from "@nestjs/common";
+import { CACHE_MANAGER } from "@nestjs/cache-manager";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { firstValueFrom } from "rxjs";
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class WeatherService {
 
     private readonly logger = new Logger(WeatherService.name);
 
-    constructor(private readonly configService: ConfigService, private readonly httpService: HttpService) {
+    constructor(private readonly configService: ConfigService, private readonly httpService: HttpService,
+        @Inject(CACHE_MANAGER) private cacheService: Cache) {
 
     }
 
@@ -22,9 +25,27 @@ export class WeatherService {
 
 
         try {
+
+            // check if data is in cache:
+            const cachedData = await this.cacheService.get<string>(city);
+            if (cachedData) {
+                this.logger.debug(`Cached data: ${cachedData}`);
+                this.logger.debug(`Getting data from cache!`);
+                return JSON.parse(cachedData);
+            }
+            else {
+                this.logger.debug("No cached data found")
+            }
+
             const res = await firstValueFrom(this.httpService.get(url));
             this.logger.log(`Weather data fetched successfully for city: ${city}`);
             this.logger.debug(`Response data: ${JSON.stringify(res.data)}`);
+
+            //Caching response dat
+            await this.cacheService.set(city, JSON.stringify(res.data));
+            // const cachedData = await this.cacheService.get(city);
+            this.logger.debug(`Cached data: ${cachedData}`);
+
             return res.data;
         } catch (error) {
             if (error.response && error.response.status === 404) {

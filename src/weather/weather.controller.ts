@@ -1,6 +1,7 @@
-import { Controller, Get, Logger, Query } from '@nestjs/common';
+import { Controller, Get, Logger, Query, UseInterceptors } from '@nestjs/common';
 import { WeatherService } from './weather.service';
 import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 
 @Controller('weather')
 export class WeatherController {
@@ -9,6 +10,8 @@ export class WeatherController {
 
     constructor(private readonly weatherService: WeatherService) { }
 
+    // @UseInterceptors(CacheInterceptor) // Automatically cache the response for this endpoint
+    // @CacheTTL(300000000)
     @Get()
     @ApiOperation({ summary: 'Get weather information for a specific city' })
     @ApiQuery({ name: 'city', required: true, description: 'Name of the city' })
